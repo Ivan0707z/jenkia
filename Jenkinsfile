@@ -23,41 +23,22 @@ pipeline {
         }
 
         stage('Test') {
-        
             agent {
-        
                 docker {
-        
                     image 'alpine'
-        
                     args '-u=root'
-                        
                 }
-                    
             }
-                    
-
             steps {
-        
                 script {
-            
                     sh 'apk add --update python3 py3-pip'
-            
                     sh 'python3 -m venv /path/to/venv'
-            
                     sh '/path/to/venv/bin/pip install xmlrunner'
-            
-                    sh '/path/to/venv/bin/python3 -m pip install --upgrade unittest'
-
-            
-                    // Виконуємо ваші тести
-            
-                    sh '/path/to/venv/bin/python3 test.py'
         
+                    // Виконуємо ваші тести
+                    sh '/path/to/venv/bin/python3 test.py'
                 }
-    
             }
-
 
             post {
                 always {
