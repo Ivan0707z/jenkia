@@ -36,24 +36,28 @@ pipeline {
                     
             }
                     
+
             steps {
-            
+        
                 script {
-                
-                    sh 'apk add --update python3 py3-pip' 
-                
-                    sh 'python3 -m venv /path/to/venv' 
-                
-                    sh '/path/to/venv/bin/pip install unittest2==1.1.0' 
-                
-                    sh '/path/to/venv/bin/pip install xmlrunner' 
-                
-                    sh '/path/to/venv/bin/python3 test.py' 
             
+                    sh 'apk add --update python3 py3-pip'
+            
+                    sh 'python3 -m venv /path/to/venv'
+            
+                    sh '/path/to/venv/bin/pip install xmlrunner'
+            
+                    sh '/path/to/venv/bin/python3 -m pip install --upgrade unittest'
+
+            
+                    // Виконуємо ваші тести
+            
+                    sh '/path/to/venv/bin/python3 test.py'
+        
                 }
-        
+    
             }
-        
+
 
             post {
                 always {
