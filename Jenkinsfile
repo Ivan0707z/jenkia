@@ -1,9 +1,11 @@
 pipeline {
+
+
     options {
         timestamps()
     }
 
-    agent none
+    agent any
 
     stages {
         stage('Check scm') {
@@ -43,6 +45,20 @@ pipeline {
                 }
                 failure {
                     echo "Oooppss!!! Tests failed!"
+                }
+            }
+        }
+        stage('Build and Push Docker Image') {
+            steps {
+                script {
+                    // Build Docker image
+                    def DOCKER_IMAGE = 'anne738/my-repo-for-exam'
+                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile ."
+
+                    withCredentials([usernamePassword(credentialsId: 'LandPDOCKER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
+                    }
+                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
