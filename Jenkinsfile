@@ -23,30 +23,37 @@ pipeline {
         }
 
         stage('Test') {
+        
             agent {
+        
                 docker {
+        
                     image 'alpine'
+        
                     args '-u=root'
+                        
                 }
+                    
             }
+                    
             steps {
-                    script {
-                        // Кроки, які вже були в вашому коді
-                        sh 'apk add --update python3 py-pip'
-                        sh 'pip install unittest2==1.1.0'
-                        sh 'pip install xmlrunner'
             
-                        // Нові кроки для використання віртуального середовища
-                        sh 'apk add --update bash'
+                script {
+                
+                    sh 'apk add --update python3 py3-pip' 
+                
+                    sh 'python3 -m venv /path/to/venv' 
+                
+                    sh '/path/to/venv/bin/pip install unittest2==1.1.0' 
+                
+                    sh '/path/to/venv/bin/pip install xmlrunner' 
+                
+                    sh '/path/to/venv/bin/python3 test.py' 
             
-                        // Створюємо та активуємо віртуальне середовище
-                        sh 'python3 -m venv venv'
-                        sh 'source venv/bin/activate'
-            
-                        // Виконуємо ваші тести
-                        sh 'python3 test.py'
-                    }
                 }
+        
+            }
+        
 
             post {
                 always {
