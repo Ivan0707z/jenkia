@@ -56,10 +56,15 @@ pipeline {
             steps {
                 script {
                     // Build Docker image
-                    def DOCKER_IMAGE = 'opanegr/my-repo'
+                    def DOCKER_IMAGE = 'opanegr/repo'
                     sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile ."
-        
-                    // ... rest of your script
+
+                    withCredentials([usernamePassword(credentialsId: 'LandPDOCKER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
+                    }
+                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
+    }
+}
