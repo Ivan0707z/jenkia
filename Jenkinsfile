@@ -3,8 +3,8 @@ pipeline {
 
     agent any
     environment {
-        DOCKER_IMAGE = 'annaiiv/lab3_flask_app'
-        FLASK_APP = 'lab3_flask_app.py'
+        DOCKER_IMAGE = 'annaiiv/exam_app'
+        FLASK_APP = 'app.py'
 
         DOCKERHUB_CREDENTIALS = credentials('dockerhub')
     }
@@ -59,7 +59,6 @@ pipeline {
             steps {
                 script {
                     sh "echo 'Deploying Flask app...'"
-                    // sh "echo 'ADDED SOME TEXT'"
                 }
                 
             }
