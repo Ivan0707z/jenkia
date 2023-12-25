@@ -30,12 +30,24 @@ pipeline {
                 }
             }
             steps {
-                sh 'apk add --update python3 py-pip'
-                sh 'pip install unittest2==1.1.0'
-                // sh 'pip install --upgrade pip wheel setuptools requests'
-                sh 'pip install xmlrunner'
-                sh 'python3 test.py'
-            }
+                    script {
+                        // Кроки, які вже були в вашому коді
+                        sh 'apk add --update python3 py-pip'
+                        sh 'pip install unittest2==1.1.0'
+                        sh 'pip install xmlrunner'
+            
+                        // Нові кроки для використання віртуального середовища
+                        sh 'apk add --update bash'
+            
+                        // Створюємо та активуємо віртуальне середовище
+                        sh 'python3 -m venv venv'
+                        sh 'source venv/bin/activate'
+            
+                        // Виконуємо ваші тести
+                        sh 'python3 test.py'
+                    }
+                }
+
             post {
                 always {
                     junit 'test-reports/*.xml'
