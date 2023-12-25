@@ -1,88 +1,85 @@
 pipeline {
-    options {
-        timestamps()
-    }
-    
+    options {timestamps()}
+
     agent any
-    
+    environment {
+        DOCKER_IMAGE = 'annaiiv/lab3_flask_app'
+        FLASK_APP = 'lab3_flask_app.py'
+
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
+    }
+
     stages {
         stage('Check scm') {
-            agent any
             steps {
+                // Checkout the code from your version control system (e.g., Git)
                 checkout scm
             }
         }
 
-        stage('Test') {
-            agent {
-                docker {
-                    image 'alpine'
-                    args '-u=root'
-                }
-            }
-            steps {
-    script {
-        sh 'apk add --update python3 py3-pip' 
-        sh 'python3 -m venv /path/to/venv' 
-        sh '/path/to/venv/bin/pip install unittest2==1.1.0' 
-        sh '/path/to/venv/bin/pip install xmlrunner' 
-        sh '/path/to/venv/bin/python3 test.py' 
-    }
-}
-
-            post {
-                always {
-                    junit 'test-reports/*.xml'
-                }
-                success {
-                    echo "Application testing successfully completed"
-                }
-                failure {
-                    echo "Oooppss!!! Tests failed!"
-                }
-            }
-        }
-        
         stage('Build') {
             steps {
-                echo "Building ...${BUILD_NUMBER}" 
-                echo "Build completed"
+                echo "Building ...${BUILD_NUMBER}"
+                echo "Build compleated."
             }
         }
 
-        stage('Docker Build'){
-            steps {
-                sh 'pwd'
-                sh 'docker build -t lab3 /var/jenkins_home/workspace/exam'
-                // sh 'docker run lab3 test'
+        stage('Test') {
+            agent{
+                docker{
+                    image 'alpine'
+                    args '-u=\"root\"'
+                }
+            }
+            steps{
+                sh "apk add --update python3 py-pip"
+                sh "pip install Flask"
+                sh  "pip install xmlrunner"
+                sh "python3 test.py"
+                echo "Test section compleated."
             }
         }
-        stage('Build Docker Image Info') {
+
+        stage('Build and Push Docker Image') {
             steps {
                 script {
-                    // Отримати хеш коміту для тегу образу
-                    def commitHash = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-                    // Створити тег образу
-                    def imageTag = "lab3:${commitHash}"
-                    // Записати тег образу у файл
-                    writeFile file: 'docker-image-tag', text: imageTag
+                    // Build Docker image
+                    sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile ."
+                    // Push Docker image to Docker Hub
+                    // withCredentials([usernamePassword(credentialsId: 'docker-hub-credentials', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+                    //     sh "docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
+                    // }
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                    sh "docker push ${DOCKER_IMAGE}"
                 }
             }
         }
-        stage('Build and Push') {
-    steps {
-        script {
-            def imageTag = readFile 'docker-image-tag'
-            sh "docker build -t ${imageTag} -f Dockerfile ."
 
-            // Використання облікових даних Docker Hub для логіну
-            withCredentials([usernamePassword(credentialsId: 'your_credentials_id', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
-                sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
-                sh "docker push ${imageTag}"
+        stage('Deploy') {
+            steps {
+                script {
+                    sh "echo 'Deploying Flask app...'"
+                    // sh "echo 'ADDED SOME TEXT'"
+                }
+                
             }
         }
-    }
-}
 
+    }
+
+
+  post { 
+        always { 
+            echo 'The pipeline completed'
+            junit allowEmptyResults: true, testResults:'**/test_reports/*.xml'
+            sh 'docker logout'
+        } 
+        success {                    
+            echo "Flask Application Up and running!!"
+        } 
+        failure { 
+            echo 'Build stage failed'
+            error('Stopping early…') 
+        } 
     }
 }
