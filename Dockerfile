@@ -13,3 +13,5 @@ RUN pip install xmlrunner
 EXPOSE 5000
 ENTRYPOINT [ "python" ]
 CMD ["test.py"]
+
+RUN rm -rf /venv
