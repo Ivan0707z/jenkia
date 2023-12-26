@@ -6,7 +6,7 @@ COPY . /app
 
 # Встановлення Flask віртуальним середовищем
 RUN python3 -m venv /venv
-RUN /venv/bin/pip install --no-cache-dir --disable-pip-version-check Flask
+RUN source /venv/bin/activate && /venv/bin/pip install --no-cache-dir --disable-pip-version-check Flask
 RUN /venv/bin/pip install --no-cache-dir --disable-pip-version-check xmlrunner
 
 EXPOSE 5000
