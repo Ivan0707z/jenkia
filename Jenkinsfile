@@ -59,8 +59,8 @@ pipeline {
                     def DOCKER_IMAGE = 'opanegr/repo'
                     sh "docker build -t ${DOCKER_IMAGE} -f Dockerfile ."
 
-                    withCredentials([usernamePassword(credentialsId: 'LandPDOCKER', usernameVariable: 'opanegr', passwordVariable: 'Gugugu123')]) {
-                    sh 'docker login -u opanegr -p Gugugu123'
+                    withCredentials([usernamePassword(credentialsId: 'LandPDOCKER', usernameVariable: 'DOCKERHUB_USERNAME', passwordVariable: 'DOCKERHUB_PASSWORD')]) {
+                    sh 'docker login -u $DOCKERHUB_USERNAME -p $DOCKERHUB_PASSWORD'
                     }
                     sh "docker push ${DOCKER_IMAGE}"
                 }
